@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hash Cracker & Identifier</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center mb-8 text-indigo-600">Hash Cracker & Identifier</h1>
+        
+        <!-- Hash Generator Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Generate Hash</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="text" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Algorithm</label>
+                    <select id="hash-algorithm" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="md5">MD5</option>
+                        <option value="sha1">SHA1</option>
+                        <option value="sha256">SHA256</option>
+                        <option value="sha512">SHA512</option>
+                    </select>
+                </div>
+                <button onclick="generateHash()" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    Generate Hash
+                </button>
+                <div id="hash-result" class="hidden mt-4 p-4 bg-gray-50 rounded-md"></div>
+            </div>
+        </div>
+
+        <!-- Hash Identifier Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Identify Hash</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Hash Value</label>
+                    <input type="text" id="identify-hash" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                </div>
+                <button onclick="identifyHash()" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                    Identify Hash
+                </button>
+                <div id="identify-result" class="hidden mt-4 p-4 bg-gray-50 rounded-md"></div>
+            </div>
+        </div>
+
+        <!-- Hash Cracker Section -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-semibold mb-4">Crack Hash</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Hash to Crack</label>
+                    <input type="text" id="crack-hash" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Algorithm</label>
+                    <select id="crack-algorithm" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="auto">Auto Detect</option>
+                        <option value="md5">MD5</option>
+                        <option value="sha1">SHA1</option>
+                        <option value="sha256">SHA256</option>
+                        <option value="sha512">SHA512</option>
+                    </select>
+                </div>
+                <button onclick="crackHash()" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                    Crack Hash
+                </button>
+                <div id="crack-result" class="hidden mt-4 p-4 bg-gray-50 rounded-md"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateHash() {
+            const password = $('#password').val();
+            const algorithm = $('#hash-algorithm').val();
+            
+            $.post('/hash', { password, algorithm })
+                .done(function(response) {
+                    if (response.hash) {
+                        $('#hash-result')
+                            .html(`<p class="font-mono break-all">${response.hash}</p>`)
+                            .removeClass('hidden');
+                    } else {
+                        $('#hash-result')
+                            .html(`<p class="text-red-600">${response.error}</p>`)
+                            .removeClass('hidden');
+                    }
+                });
+        }
+
+        function identifyHash() {
+            const hash = $('#identify-hash').val();
+            
+            $.post('/identify', { hash })
+                .done(function(response) {
+                    if (response.types) {
+                        let html = '<div class="space-y-4">';
+                        response.types.forEach(type => {
+                            html += `
+                                <div class="border-l-4 border-green-500 pl-4">
+                                    <h3 class="font-semibold text-lg">${type.name}</h3>
+                                    <p class="text-sm text-gray-600">Complexity: ${type.complexity}</p>
+                                    <p class="text-sm text-gray-600">${type.description}</p>
+                                    <p class="text-sm text-gray-600">Introduced: ${type.year}</p>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                        $('#identify-result')
+                            .html(html)
+                            .removeClass('hidden');
+                    } else {
+                        $('#identify-result')
+                            .html(`<p class="text-red-600">${response.error}</p>`)
+                            .removeClass('hidden');
+                    }
+                });
+        }
+
+        function crackHash() {
+            const hash = $('#crack-hash').val();
+            const algorithm = $('#crack-algorithm').val();
+            
+            $('#crack-result')
+                .html('<p class="text-gray-600">Cracking in progress...</p>')
+                .removeClass('hidden');
+            
+            $.post('/crack', { hash, algorithm })
+                .done(function(response) {
+                    if (response.password) {
+                        $('#crack-result').html(`
+                            <div class="space-y-2">
+                                <p class="text-green-600 font-semibold">Password found!</p>
+                                <p class="font-mono">${response.password}</p>
+                            </div>
+                        `);
+                    } else {
+                        $('#crack-result').html(`
+                            <p class="text-red-600">${response.error}</p>
+                        `);
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
