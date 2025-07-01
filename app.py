@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from password_cracker import hash_password, crack_password
-import os
+from password_cracker import hash_password, crack_password, identify_hash_type
 
 app = Flask(__name__)
 
@@ -8,36 +7,58 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/crack', methods=['POST'])
-def crack():
-    data = request.get_json()
-    hash_value = data.get('hash')
-    algorithm = data.get('algorithm', 'md5')
-    
-    if not hash_value:
-        return jsonify({'error': 'Hash value is required'}), 400
-    
-    wordlist_path = os.path.join(os.path.dirname(__file__), 'sample_wordlist.txt')
-    result = crack_password(hash_value, wordlist_path, algorithm)
-    
-    if result:
-        return jsonify({'password': result})
-    return jsonify({'message': 'Password not found in wordlist'})
-
 @app.route('/hash', methods=['POST'])
 def hash():
-    data = request.get_json()
-    password = data.get('password')
-    algorithm = data.get('algorithm', 'md5')
+    password = request.form.get('password')
+    algorithm = request.form.get('algorithm', 'md5')
     
     if not password:
-        return jsonify({'error': 'Password is required'}), 400
+        return jsonify({'error': 'No password provided'})
     
     try:
         hashed = hash_password(password, algorithm)
         return jsonify({'hash': hashed})
     except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)})
+
+@app.route('/identify', methods=['POST'])
+def identify():
+    hash_value = request.form.get('hash')
+    
+    if not hash_value:
+        return jsonify({'error': 'No hash provided'})
+    
+    possible_types = identify_hash_type(hash_value)
+    
+    if possible_types:
+        return jsonify({
+            'types': [
+                {
+                    'name': hash_type,
+                    'complexity': info['complexity'],
+                    'description': info['description'],
+                    'year': info['year']
+                }
+                for hash_type, info in possible_types
+            ]
+        })
+    else:
+        return jsonify({'error': 'Unknown hash type'})
+
+@app.route('/crack', methods=['POST'])
+def crack():
+    hash_value = request.form.get('hash')
+    algorithm = request.form.get('algorithm', 'auto')
+    
+    if not hash_value:
+        return jsonify({'error': 'No hash provided'})
+    
+    result = crack_password(hash_value, 'sample_wordlist.txt', algorithm)
+    
+    if result:
+        return jsonify({'password': result})
+    else:
+        return jsonify({'error': 'Password not found'})
 
 if __name__ == '__main__':
     app.run(debug=True)

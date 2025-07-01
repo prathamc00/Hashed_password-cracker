@@ -1,91 +1,158 @@
 # Hashed Password Cracker
 
-A Python-based tool for cracking password hashes using dictionary attacks. This tool supports multiple hashing algorithms including MD5, SHA1, and SHA256. Available both as a command-line tool and a web application.
+A Python-based tool for identifying and cracking password hashes using dictionary attacks. Features both a command-line interface and a modern web interface!
 
 ## Features
 
-- Support for multiple hashing algorithms (MD5, SHA1, SHA256)
+### Hash Support
+- Supports multiple hashing algorithms:
+  - MD5 (128-bit)
+  - SHA1 (160-bit)
+  - SHA256 (256-bit)
+  - SHA512 (512-bit)
+  - NTLM (Windows passwords)
+  - MySQL (41-character)
+  - BCrypt (60-character)
+
+### Hash Identification
+- Automatic hash type detection
+- Detailed hash information:
+  - Algorithm complexity
+  - Historical context
+  - Security recommendations
+  - Technical specifications
+
+### Cracking Capabilities
 - Dictionary attack using custom wordlists
-- Simple command-line interface
-- Modern web interface with real-time hash generation and cracking
-- UTF-8 encoding support for wordlists
+- Auto-detection of hash type for cracking
+- Multiple algorithm attempts for ambiguous hashes
+
+### User Interface
+- Command-line interface for scripting and automation
+- Modern web interface with:
+  - Real-time hash generation
+  - Hash type identification
+  - Password cracking
+  - Responsive design using Tailwind CSS
 
 ## Requirements
 
 - Python 3.6 or higher
 - Flask (for web interface)
-- Additional dependencies listed in requirements.txt
+- Internet connection (for Tailwind CSS CDN and jQuery)
 
-Install dependencies using:
-```bash
-pip install -r requirements.txt
-```
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/hashed-password-cracker.git
+   cd hashed-password-cracker
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Usage
 
 ### Command Line Interface
 
 ```bash
-python password_cracker.py <hash> <wordlist> [--algorithm {md5,sha1,sha256}]
+# Identify a hash type
+python password_cracker.py <hash> <wordlist> --identify
+
+# Crack a hash with automatic type detection
+python password_cracker.py <hash> <wordlist>
+
+# Crack a hash using a specific algorithm
+python password_cracker.py <hash> <wordlist> --algorithm sha256
 ```
 
 ### Web Interface
 
-Start the web server:
-```bash
-python app.py
-```
+1. Start the Flask server:
+   ```bash
+   python app.py
+   ```
 
-Then open your browser and navigate to:
-```
-http://localhost:5000
-```
+2. Open your browser and navigate to `http://localhost:5000`
 
-The web interface provides two main functions:
-1. **Hash Generator**: Create hashes from passwords using different algorithms
-2. **Hash Cracker**: Attempt to crack password hashes using the built-in wordlist
-```
-
-### Arguments
-
-- `hash`: The hash value you want to crack
-- `wordlist`: Path to your dictionary file containing possible passwords (one per line)
-- `--algorithm`, `-a`: The hashing algorithm used (default: md5)
-
-### Example
-
-```bash
-# Crack an MD5 hash
-python password_cracker.py 5f4dcc3b5aa765d61d8327deb882cf99 wordlist.txt
-
-# Crack a SHA256 hash
-python password_cracker.py 5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8 wordlist.txt --algorithm sha256
-```
-
-## Included Files
-
-1. **Sample Wordlist** (`sample_wordlist.txt`)
-   - Contains common passwords for testing
-   - One password per line
-   - Useful for quick testing and demonstrations
-
-2. **Common Hashes** (`common_hashes.txt`)
-   - Reference file containing common passwords and their hashes
-   - Format: `password:md5_hash:sha1_hash:sha256_hash`
-   - Useful for learning and testing hash identification
-
-## Creating Your Own Wordlist
-
-You can enhance the cracking capability by:
-- Creating your own custom wordlist
-- Using publicly available wordlists (like rockyou.txt)
-- Generate wordlists using tools like Crunch
-- Combining multiple wordlists
+3. Use the web interface to:
+   - Generate hashes from passwords
+   - Identify unknown hash types
+   - Get detailed hash information
+   - Crack password hashes
+   - Choose different hashing algorithms
+   - Use automatic hash type detection
 
 ## Security Notice
 
-This tool is for educational purposes and legitimate security testing only. Do not use it to crack passwords without proper authorization.
+This tool is for educational and testing purposes only. Please note:
+
+- Do not use it to crack passwords without proper authorization
+- Unauthorized password cracking may be illegal and unethical
+- Some included hash algorithms (MD5, SHA1) are considered cryptographically broken
+- For secure password storage, use modern algorithms like BCrypt with proper salting
+- This tool can help identify weak password hashing implementations
+
+## Hash Types Information
+
+### Supported Hash Types and Their Security Status
+
+1. **MD5**
+   - Length: 32 characters
+   - Status: Cryptographically broken
+   - Use Case: Legacy systems, file checksums
+
+2. **SHA1**
+   - Length: 40 characters
+   - Status: Cryptographically broken
+   - Use Case: Legacy systems, Git version control
+
+3. **SHA256**
+   - Length: 64 characters
+   - Status: Cryptographically secure
+   - Use Case: Modern security applications
+
+4. **SHA512**
+   - Length: 128 characters
+   - Status: Cryptographically secure
+   - Use Case: High-security applications
+
+5. **NTLM**
+   - Length: 32 characters
+   - Status: Vulnerable to attacks
+   - Use Case: Windows password hashes
+
+6. **MySQL**
+   - Length: 41 characters
+   - Status: Moderately secure (with proper salting)
+   - Use Case: MySQL database password storage
+
+7. **BCrypt**
+   - Length: 60 characters
+   - Status: Highly secure
+   - Use Case: Modern password storage
+
+## Project Structure
+
+```
+.
+├── app.py                 # Flask web application
+├── password_cracker.py    # Core password cracking functionality
+├── hash_identifier.py     # Hash type identification module
+├── requirements.txt       # Python dependencies
+├── README.md             # Project documentation
+├── sample_wordlist.txt    # Sample wordlist for testing
+└── templates/
+    └── index.html        # Web interface template
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
 
-This project is open source and available under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.
